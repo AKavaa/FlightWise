@@ -1,0 +1,48 @@
+# ─── Python ───
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ─── Environment / secrets ───
+.env
+.env.local
+*.env
+!.env.example
+
+# ─── Data (large / regenerable — not committed to git) ───
+data/raw/*.csv
+data/processed/*.csv
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# ─── Models (large binary files — track via MLflow / releases, not git) ───
+models/*.json
+models/*.db
+models/mlruns/
+models/mlartifacts/
+!models/.gitkeep
+mlruns/
+
+# ─── Jupyter ───
+.ipynb_checkpoints/
+
+# ─── Node / Next.js (frontend, once added) ───
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# ─── OS / editor ───
+.DS_Store
+.vscode/
+.idea/
+*.log
