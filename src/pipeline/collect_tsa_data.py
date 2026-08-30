@@ -14,12 +14,13 @@ fresh rows.
 
 import pandas as pd
 import numpy as np
-import requests
 from pathlib import Path
 from datetime import datetime
 import logging
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 RAW_DATA_DIR = Path(__file__).resolve().parents[2] / "data" / "raw"
@@ -49,7 +50,9 @@ def fetch_live() -> pd.DataFrame:
     )
 
 
-def generate_sample_data(start_date: str = "2022-01-01", end_date: str = "2026-08-01") -> pd.DataFrame:
+def generate_sample_data(
+    start_date: str = "2022-01-01", end_date: str = "2026-08-01"
+) -> pd.DataFrame:
     """
     Generates a realistic synthetic TSA-style dataset for development.
 
@@ -63,15 +66,29 @@ def generate_sample_data(start_date: str = "2022-01-01", end_date: str = "2026-0
     base = 2_100_000
     values = []
     for d in dates:
-        dow_factor = {0: 0.92, 1: 0.88, 2: 0.90, 3: 0.97, 4: 1.12, 5: 1.05, 6: 1.15}[d.weekday()]
+        dow_factor = {0: 0.92, 1: 0.88, 2: 0.90, 3: 0.97, 4: 1.12, 5: 1.05, 6: 1.15}[
+            d.weekday()
+        ]
         month_factor = {
-            1: 0.95, 2: 0.90, 3: 1.00, 4: 1.02, 5: 1.05, 6: 1.10,
-            7: 1.15, 8: 1.13, 9: 0.95, 10: 0.97, 11: 1.05, 12: 1.10
+            1: 0.95,
+            2: 0.90,
+            3: 1.00,
+            4: 1.02,
+            5: 1.05,
+            6: 1.10,
+            7: 1.15,
+            8: 1.13,
+            9: 0.95,
+            10: 0.97,
+            11: 1.05,
+            12: 1.10,
         }[d.month]
         noise = rng.normal(1.0, 0.04)
         values.append(base * dow_factor * month_factor * noise)
 
-    df = pd.DataFrame({"date": dates, "checkpoint_travel_numbers": [int(v) for v in values]})
+    df = pd.DataFrame(
+        {"date": dates, "checkpoint_travel_numbers": [int(v) for v in values]}
+    )
     return df
 
 
@@ -86,7 +103,9 @@ def save_raw(df: pd.DataFrame, filename: str = None) -> Path:
 
 
 if __name__ == "__main__":
-    logger.info("Generating development dataset (swap for fetch_live() once TSA scraper is confirmed)")
+    logger.info(
+        "Generating development dataset (swap for fetch_live() once TSA scraper is confirmed)"
+    )
     df = generate_sample_data()
     save_raw(df)
     print(df.head(10))

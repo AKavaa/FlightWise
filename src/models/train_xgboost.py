@@ -18,7 +18,9 @@ from pathlib import Path
 import logging
 import json
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 PROCESSED_DIR = Path(__file__).resolve().parents[2] / "data" / "processed"
@@ -27,10 +29,20 @@ MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
 TARGET_COL = "checkpoint_travel_numbers"
 FEATURE_COLS = [
-    "day_of_week", "month", "day_of_year", "is_weekend",
-    "dow_sin", "dow_cos", "month_sin", "month_cos",
-    "is_school_holiday", "lag_7d", "lag_14d",
-    "rolling_mean_7d", "rolling_mean_30d", "rolling_std_7d",
+    "day_of_week",
+    "month",
+    "day_of_year",
+    "is_weekend",
+    "dow_sin",
+    "dow_cos",
+    "month_sin",
+    "month_cos",
+    "is_school_holiday",
+    "lag_7d",
+    "lag_14d",
+    "rolling_mean_7d",
+    "rolling_mean_30d",
+    "rolling_std_7d",
 ]
 
 mlflow.set_tracking_uri(f"sqlite:///{MODELS_DIR / 'mlflow.db'}")
@@ -40,7 +52,9 @@ mlflow.set_experiment("flightwise-airport-busyness")
 def load_features() -> pd.DataFrame:
     path = PROCESSED_DIR / "features_v1.csv"
     if not path.exists():
-        raise FileNotFoundError("No processed features found. Run clean_and_engineer.py first.")
+        raise FileNotFoundError(
+            "No processed features found. Run clean_and_engineer.py first."
+        )
     df = pd.read_csv(path, parse_dates=["date"])
     return df
 
@@ -55,8 +69,12 @@ def time_aware_split(df: pd.DataFrame, test_size: float = 0.15):
     split_idx = int(len(df) * (1 - test_size))
     train_df = df.iloc[:split_idx]
     test_df = df.iloc[split_idx:]
-    logger.info(f"Train: {train_df['date'].min().date()} → {train_df['date'].max().date()} ({len(train_df)} rows)")
-    logger.info(f"Test:  {test_df['date'].min().date()} → {test_df['date'].max().date()} ({len(test_df)} rows)")
+    logger.info(
+        f"Train: {train_df['date'].min().date()} → {train_df['date'].max().date()} ({len(train_df)} rows)"
+    )
+    logger.info(
+        f"Test:  {test_df['date'].min().date()} → {test_df['date'].max().date()} ({len(test_df)} rows)"
+    )
     return train_df, test_df
 
 
@@ -75,7 +93,9 @@ def evaluate(y_true, y_pred, label: str) -> dict:
     r2 = r2_score(y_true, y_pred)
     mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
-    logger.info(f"[{label}] MAE={mae:,.0f}  RMSE={rmse:,.0f}  R²={r2:.3f}  MAPE={mape:.2f}%")
+    logger.info(
+        f"[{label}] MAE={mae:,.0f}  RMSE={rmse:,.0f}  R²={r2:.3f}  MAPE={mape:.2f}%"
+    )
     return {"mae": mae, "rmse": rmse, "r2": r2, "mape": mape}
 
 
@@ -104,10 +124,14 @@ def train():
         baseline_pred = naive_baseline_predictions(test_df)
 
         model_metrics = evaluate(y_test.values, y_pred, "XGBoost")
-        baseline_metrics = evaluate(y_test.values, baseline_pred, "Naive baseline (same day last week)")
+        baseline_metrics = evaluate(
+            y_test.values, baseline_pred, "Naive baseline (same day last week)"
+        )
 
         improvement_pct = (1 - model_metrics["mae"] / baseline_metrics["mae"]) * 100
-        logger.info(f"XGBoost improves MAE over naive baseline by {improvement_pct:.1f}%")
+        logger.info(
+            f"XGBoost improves MAE over naive baseline by {improvement_pct:.1f}%"
+        )
 
         for k, v in model_metrics.items():
             mlflow.log_metric(f"xgb_{k}", v)
@@ -115,7 +139,9 @@ def train():
             mlflow.log_metric(f"baseline_{k}", v)
         mlflow.log_metric("improvement_over_baseline_pct", improvement_pct)
 
-        importance = pd.Series(model.feature_importances_, index=FEATURE_COLS).sort_values(ascending=False)
+        importance = pd.Series(
+            model.feature_importances_, index=FEATURE_COLS
+        ).sort_values(ascending=False)
         logger.info("\nTop features:\n" + importance.head(8).to_string())
 
         mlflow.xgboost.log_model(model, "model")
