@@ -83,6 +83,3 @@ mlflow ui --backend-store-uri sqlite:///models/mlflow.db
 - **Amadeus for Developers** — live flight search and booking data.
   https://developers.amadeus.com
 
-## License
-
-Academic project — UCLan Cyprus, CO3121.
