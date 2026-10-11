@@ -1,10 +1,4 @@
-"""
-Basic tests for the FlightWise data pipeline.
-
-These are intentionally lightweight — the goal for a dissertation project
-isn't 100% coverage, it's demonstrating that core transformations are
-correct and won't silently break as the pipeline grows.
-"""
+"""Checks for the current feature transformations."""
 
 import sys
 from pathlib import Path
@@ -66,7 +60,6 @@ def test_holiday_flag_is_binary():
 def test_lag_features_shift_correctly():
     df = make_sample_df()
     result = add_lag_features(df)
-    # lag_7d at row 10 should equal the raw value at row 3 (10 - 7)
     raw_value_at_3 = df.loc[3, "checkpoint_travel_numbers"]
     lag_value_at_10 = result.loc[10, "lag_7d"]
     assert lag_value_at_10 == raw_value_at_3
@@ -75,5 +68,4 @@ def test_lag_features_shift_correctly():
 def test_lag_features_produce_nan_for_early_rows():
     df = make_sample_df()
     result = add_lag_features(df)
-    # first 7 rows can't have a 7-day lag — must be NaN, not silently wrong
-    assert result.loc[0, "lag_7d"] != result.loc[0, "lag_7d"]  # NaN check
+    assert pd.isna(result.loc[0, "lag_7d"])

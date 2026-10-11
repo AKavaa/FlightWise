@@ -1,8 +1,4 @@
-"""
-FlightWise — Cleaning & Feature Engineering
----------------------------------------------
-Takes raw TSA checkpoint data and produces a model-ready feature table.
-"""
+"""Build calendar and lag features from daily passenger counts."""
 
 import logging
 from pathlib import Path
@@ -35,7 +31,7 @@ SCHOOL_HOLIDAY_RANGES = [
 def load_latest_raw() -> pd.DataFrame:
     files = sorted(RAW_DIR.glob("tsa_checkpoint_*.csv"))
     if not files:
-        raise FileNotFoundError("No raw TSA data found. Run collect_tsa_data.py first.")
+        raise FileNotFoundError("No TSA CSV found in data/raw.")
     latest = files[-1]
     logger.info(f"Loading {latest}")
     return pd.read_csv(latest, parse_dates=["date"])

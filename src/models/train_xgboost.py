@@ -1,11 +1,6 @@
-"""
-FlightWise — XGBoost Airport Busyness Model
-----------------------------------------------
-Trains a gradient-boosted regression model to predict daily airport
-checkpoint volume, evaluates it against a naive baseline, and logs
-everything to MLflow for versioning and comparison.
+"""Train and evaluate a prototype XGBoost model on a prepared daily table.
 
-Run: python src/models/train_xgboost.py
+This script does not collect data. Its metrics depend on the input table.
 """
 
 import pandas as pd
@@ -60,11 +55,6 @@ def load_features() -> pd.DataFrame:
 
 
 def time_aware_split(df: pd.DataFrame, test_size: float = 0.15):
-    """
-    Time series data must NOT be split randomly — that would let the model
-    train on future dates and test on past dates, leaking information.
-    Split chronologically instead: earliest data trains, most recent tests.
-    """
     df = df.sort_values("date").reset_index(drop=True)
     split_idx = int(len(df) * (1 - test_size))
     train_df = df.iloc[:split_idx]
@@ -79,11 +69,7 @@ def time_aware_split(df: pd.DataFrame, test_size: float = 0.15):
 
 
 def naive_baseline_predictions(test_df: pd.DataFrame) -> np.ndarray:
-    """
-    The baseline every model must beat: 'today will look like the same
-    day last week'. A model is only worth using if it clearly outperforms
-    this trivial, zero-training-cost heuristic.
-    """
+    """Use the observed count from seven days earlier as the baseline."""
     return test_df["lag_7d"].values
 
 

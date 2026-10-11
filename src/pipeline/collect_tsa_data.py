@@ -1,17 +1,3 @@
-"""
-FlightWise — TSA Checkpoint Data Collector
---------------------------------------------
-Downloads daily TSA checkpoint passenger volumes and saves as raw CSV.
-
-TSA publishes this data at:
-https://www.tsa.gov/travel/passenger-volumes
-
-This script is designed to run on a schedule (daily cron job) so the
-dataset stays current. For the dissertation build, run it once to
-pull the full historical archive, then daily thereafter to append
-fresh rows.
-"""
-
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -26,40 +12,15 @@ logger = logging.getLogger(__name__)
 RAW_DATA_DIR = Path(__file__).resolve().parents[2] / "data" / "raw"
 RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-TSA_SOURCE_NOTE = (
-    "Live source: https://www.tsa.gov/travel/passenger-volumes "
-    "— replace fetch_live() body with the real scrape/export call once "
-    "the exact export endpoint is confirmed."
-)
-
-
 def fetch_live() -> pd.DataFrame:
-    """
-    Fetches the latest TSA checkpoint data.
-
-    In production this hits the TSA passenger volumes page and parses
-    the published table. Swap this implementation once you've confirmed
-    the exact export format (TSA changes its page structure occasionally,
-    so this is intentionally isolated into one function).
-    """
-    logger.info(TSA_SOURCE_NOTE)
-    raise NotImplementedError(
-        "Wire this up to the live TSA export once you've inspected the "
-        "current page structure. Use generate_sample_data() below to "
-        "develop and test the rest of the pipeline in the meantime."
-    )
+    """Placeholder for a future real-data collector."""
+    raise NotImplementedError("Live TSA collection is not implemented.")
 
 
 def generate_sample_data(
     start_date: str = "2022-01-01", end_date: str = "2026-08-01"
 ) -> pd.DataFrame:
-    """
-    Generates a realistic synthetic TSA-style dataset for development.
-
-    This mirrors the real schema (date, throughput) so every downstream
-    step — cleaning, feature engineering, XGBoost training — can be built
-    and tested today, before the live scraper is finalised.
-    """
+    """Return reproducible synthetic counts, not observed TSA data."""
     dates = pd.date_range(start=start_date, end=end_date, freq="D")
     rng = np.random.default_rng(seed=42)
 
@@ -93,7 +54,7 @@ def generate_sample_data(
 
 
 def save_raw(df: pd.DataFrame, filename: str = None) -> Path:
-    """Saves raw data with a timestamped filename for traceability."""
+    """Save a table as a timestamped CSV in data/raw."""
     if filename is None:
         filename = f"tsa_checkpoint_{datetime.now().strftime('%Y%m%d')}.csv"
     out_path = RAW_DATA_DIR / filename
@@ -103,9 +64,7 @@ def save_raw(df: pd.DataFrame, filename: str = None) -> Path:
 
 
 if __name__ == "__main__":
-    logger.info(
-        "Generating development dataset (swap for fetch_live() once TSA scraper is confirmed)"
-    )
+    logger.info("Generating synthetic development data")
     df = generate_sample_data()
     save_raw(df)
     print(df.head(10))
