@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 RAW_DATA_DIR = Path(__file__).resolve().parents[2] / "data" / "raw"
 RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+
 def fetch_live() -> pd.DataFrame:
     """Placeholder for a future real-data collector."""
     raise NotImplementedError("Live TSA collection is not implemented.")
